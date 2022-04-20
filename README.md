@@ -37,3 +37,23 @@ Thus, we have the equations required to obtain the optimal estimation: (Predicti
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}L_k=\Sigma_{\tilde{x}\tilde{z},k}^-\Sigma_{\tilde{z},k}^{-1}}">
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\hat{x}_k^&plus;=\hat{x}_k^-&plus;L_k(z_k-\hat{z}_k)}">
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x},k}^&plus;=\Sigma_{\tilde{x},k}^--L_k\Sigma_{\tilde{z},k}L_k^T}">
+
+### Applying to an Arbitrary System:
+Now, let's apply the Kalman Filter to an arbitrary system A=1, B=1, C=2, D=0 with process and measurement noise random variance 5. 
+```Matlab
+Sig_w = 5; %Process Noise
+Sig_v = 5; %Sensor Noise
+A = 1; B = 1; C = 2; D = 0; % Simple State-Space Model
+```
+Also, arbitrarily define the input (deterministic)
+```Matlab
+u = sin(k/(2*pi))+randn/3;
+```
+The real state is unknown and we estimate the state using the Kalman Filter derived from above. The figure below shows the comparison between the real state and estimated state:
+<p align="center">
+  <img 
+    width="600"
+    src="images/1.linear_kf.png"
+  >
+</p>
+
