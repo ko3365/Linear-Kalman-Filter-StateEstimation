@@ -86,3 +86,7 @@ Using the steady-state approach, the kalman gain and the state variance are not 
   >
 </p>
 
+## References
+[1] Optimal State Estimation, D. Simon, 2006 
+
+[2] State Estimation KF, G. Plett (Lecture Notes)
