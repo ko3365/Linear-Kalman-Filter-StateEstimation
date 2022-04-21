@@ -57,3 +57,32 @@ The real state is unknown and we estimate the state using the Kalman Filter deri
   >
 </p>
 
+## Part 2. Steady State Kalman Filter (Infinite Horizon)
+It is possible for the Kalman Filter recursion to converge to a unique steady state solution when the system is non-time varying, {A,C} observable, and {A,Process noise variance} controllerable. 
+
+### Hamiltonian Approach. 
+If we define our state prediction variance to be:
+
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x},k}^-=S_kZ_k^{-1}}">
+We can derive the following relationship:
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\begin{bmatrix}Z_{k&plus;1}\\S_{k&plus;1}\end{bmatrix}=\mathcal{H}\begin{bmatrix}Z_k\\S_k\end{bmatrix}}">
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\mathcal{H}=\begin{bmatrix}A^{-T}&A^{-T}C^T\Sigma_{\tilde{v}}^{-1}C\\\Sigma_{\tilde{w}}A^{-T}&A&plus;\Sigma_{\tilde{w}}A^{-T}C^T\Sigma_{\tilde{v}}^{-1}C\end{bmatrix}}">
+Perform the diagonal transformation of the Hamiltonian Matrix and define Y:
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\mathcal{H}=\Psi\begin{bmatrix}\Lambda^{-1}&0\\0&\Lambda\end{bmatrix}\Psi^{-1}}">
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\begin{bmatrix}Y_{1,k}\\Y_{2,k}\end{bmatrix}=\Psi^{-1}\begin{bmatrix}Z_k\\S_k\end{bmatrix}}">
+If the equation is from k steps after time zero and assuming k is arbitrarily high number,
+
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\begin{bmatrix}Z_k\\S_k\end{bmatrix}=\begin{bmatrix}\Psi_{11}&\Psi_{12}\\\Psi_{21}&\Psi_{22}\end{bmatrix}\begin{bmatrix}\Lambda^{-k}Y_{1,0}\\\Lambda^kY_{2,0}\end{bmatrix}=\begin{bmatrix}\Psi_{11}&\Psi_{12}\\\Psi_{21}&\Psi_{22}\end{bmatrix}\begin{bmatrix}0\\\Lambda^kY_{2,0}\end{bmatrix}}">
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\therefore\Sigma_{\tilde{x}}^-=S_kZ_k^{-1}=\Psi_{22}\Psi_{12}^{-1}}">
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}L=\Sigma_{\tilde{x}}^-C^T(C\Sigma_{\tilde{x}}^-C^T&plus;\Sigma_{\tilde{v}})^{-1}}">
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x}}^&plus;=\Sigma_{\tilde{x}}^--LC\Sigma_{\tilde{x}}^-}">
+
+Using the steady-state approach, the kalman gain and the state variance are not a function of step k. It is computationally simple with a slight penalty on optimality. The comparison between estimated state and real state is shown in the figure below (if we compare with the Linear KF approach above, the result is almost the same even if we used the constant Kalman gain:
+
+<p align="center">
+  <img 
+    width="600"
+    src="images/2.linear_kf_ss.png"
+  >
+</p>
+
