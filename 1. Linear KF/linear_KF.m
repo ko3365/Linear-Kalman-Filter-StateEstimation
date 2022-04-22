@@ -1,5 +1,5 @@
 clc;clear;close
-%% Linear Kalman Filter
+%% SISO Linear Kalman Filter
 
 % Variable Init
 Sig_w = 5; %Process Noise
@@ -31,20 +31,17 @@ for k=1:iteration
     z = C*x+D*u+v;
     x = A*x+B*u+w;
     
-    %Kalman Filter Prediction 1 (state estimate prediction)
+    %Kalman Filter Prediction
     xhat = A*xhat+B*u_prev;
-    %Kalman Filter Prediction 2 (covariance update)
     SigX = A*SigX*A'+Sig_w;
-    %Kalman Filter Prediction 3 (output prediction)
     zhat = C*xhat+D*u;
 
-    %Kalman Filter Update 1 (Kalman Gain)
+    %Kalman Filter Correction 1
     L = SigX*C'/(C*SigX*C'+Sig_v);
-    %Kalman Filter Update 2 (state estimate update)
     xhat = xhat + L*(z-zhat);
-    %Kalman Filter Update 3 (Error covariance update)
     SigX = SigX-L*C*SigX;
 
+    %Variable Store 
     xstore(1,k+1) = x;
     xhatstore(1,k) = xhat;
     SigXstore(1,k) = SigX;
@@ -54,6 +51,15 @@ for k=1:iteration
     zstore(1,k)=z;
 end
 
+figure(1)
+hold on
+plot(0:iteration-1,xstore(1:iteration)','k-')
+plot(0:iteration-1,xhatstore','r-')
+plot(0:iteration-1,xhatstore'+3*sqrt(SigXstore'), 'b-.', ...
+    0:iteration-1,xhatstore'-3*sqrt(SigXstore'), 'b-.')
+grid on
+legend('true x','estimate x (Linear KF)','error bounds')
+hold off
 %% Steady-state Kalman Filter (infinite horizon)
 
 %Obtain Steady-State Kalman Gain
@@ -76,26 +82,14 @@ for t=1:iteration
     
     %Kalman Filter Prediction 1 (state estimate prediction)
     xhat2 = A*xhat2+B*u2_prev;
-    %Kalman Filter Prediction 3 (output prediction)
     zhat2 = C*xhat2+D*u2;
 
-    %Kalman Filter Update 2 (state estimate update)
+    %Kalman Filter Correction 2 (state estimate correction)
     xhat2 = xhat2 + L_ss*(z2-zhat2);
 
-
+    %Variable Store 
     xhatstore2(1,t) = xhat2;
-
 end
-
-figure(1)
-hold on
-plot(0:iteration-1,xstore(1:iteration)','k-')
-plot(0:iteration-1,xhatstore','r-')
-plot(0:iteration-1,xhatstore'+3*sqrt(SigXstore'), 'b-.', ...
-    0:iteration-1,xhatstore'-3*sqrt(SigXstore'), 'b-.')
-grid on
-legend('true x','estimate x (Linear KF)','error bounds')
-hold off
 
 figure(2)
 hold on
