@@ -1,5 +1,4 @@
-# Linear Kalman Filter
-## Part 1. Linear Kalman Filter Derivation
+# 1. Linear Kalman Filter Derivation
 Kalman Filter is an estimation method that uses a series of measurments observed over time. It implements minimum mean square error that minimize the difference between the true state and state estimate:
 
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\hat{x}^{MMSE}=\text{min}_{\hat{x}}(\mathbb{E}[||x-\hat{x}||^2\&space;|\&space;\mathbb{Z}])&space;}">
@@ -38,7 +37,7 @@ Thus, we have the equations required to obtain the optimal estimation: (Predicti
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\hat{x}_k^&plus;=\hat{x}_k^-&plus;L_k(z_k-\hat{z}_k)}">
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x},k}^&plus;=\Sigma_{\tilde{x},k}^--L_k\Sigma_{\tilde{z},k}L_k^T}">
 
-### Applying to an Arbitrary System:
+# 2. Applying to an Arbitrary System SISO:
 Now, let's apply the Kalman Filter to an arbitrary system A=1, B=1, C=2, D=0 with process and measurement noise random variance 5. 
 ```Matlab
 Sig_w = 5; %Process Noise
@@ -57,7 +56,7 @@ The real state is unknown and we estimate the state using the Kalman Filter deri
   >
 </p>
 
-## Part 2. Steady State Kalman Filter (Infinite Horizon)
+## Steady State Kalman Filter (Infinite Horizon)
 It is possible for the Kalman Filter recursion to converge to a unique steady state solution when the system is non-time varying, {A,C} observable, and {A,Process noise variance} controllerable. 
 
 ### Hamiltonian Approach. 
@@ -86,7 +85,8 @@ Using the steady-state approach, the kalman gain and the state variance are not 
   >
 </p>
 
+# 3. Applying to an Arbitrary System MIMO:
 ## References
 [1] Optimal State Estimation, D. Simon, 2006 
 
-[2] State Estimation KF, G. Plett (Lecture Notes)
+[2] State Estimation: Applied Kalman Filter, G. Plett (Lecture Notes)
