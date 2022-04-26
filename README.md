@@ -146,8 +146,33 @@ If there exists large number of sensors, the Kalman gain calculation can be comp
 And now we need to perform m steps of prediction correction:
 
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}&space;L_{k:i}&space;=&space;\frac{\Sigma_{\tilde{x},k:i-1}^&plus;C_{k:i}}{\sigma_{\tilde{z},k:i}^2}&space;&space;}">
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\hat{x}_{k:i}^&plus;=\hat{x}_{k:i-1}^&plus;&plus;L_{k:i}(z_{k:i}-C_{k:i}^T\hat{x}_{k:i-1}^&plus;)}">
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x},k:i}^&plus;=[i-L_{k:i}C_{k:i}^T]\Sigma_{\tilde{x},k:i-1}^&plus;[i-L_{k:i}C_{k:i}^T]^T&plus;L_{k:i}\sigma_{\tilde{v}}^2L_{k:i}^T}">
 
+```Matlab
+for t=1:iteration
 
+%... Prediction ... %
+
+ % Kalman Filter Correction (Using the Sequential Measurement Processing!)
+    for m=1:length(C*xhat2)
+        C_m = C(m,:)';
+        zvar = C_m'*SigX2*C_m+SigmaV(m,m);
+        L2 = SigX2*C_m/zvar;
+        xhat2 = xhat2+L2*(z2(m)-C_m'*xhat2);
+        % (Joseph Form Covariance Update)
+        SigX2 = (eye(length(xhat2))-L2*C_m')*SigX2*(eye(length(xhat2))-L2*C_m')'+L2*zvar*L2';
+    end
+end
+```
+The figure below is the same as the regular MIMO KF, but now it's more robust (Joseph form covariance update) and efficent (squential measurement processing)
+
+<p align="center">
+  <img 
+    width="600"
+    src="images/MIMO_robust_plot.png"
+  >
+</p>
 
 
 ## References
