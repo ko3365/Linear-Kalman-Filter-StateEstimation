@@ -37,7 +37,7 @@ Thus, we have the equations required to obtain the optimal estimation: (Predicti
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\hat{x}_k^&plus;=\hat{x}_k^-&plus;L_k(z_k-\hat{z}_k)}">
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x},k}^&plus;=\Sigma_{\tilde{x},k}^--L_k\Sigma_{\tilde{z},k}L_k^T}">
 
-# 2. Applying to an Arbitrary System SISO:
+# 2. Applying to an Arbitrary System (SISO and Infinite Horizon):
 Now, let's apply the Kalman Filter to an arbitrary system A=1, B=1, C=2, D=0 with process and measurement noise random variance 5. 
 ```Matlab
 Sig_w = 5; %Process Noise
@@ -48,6 +48,22 @@ Also, arbitrarily define the input (deterministic)
 ```Matlab
 u = sin(k/(2*pi))+randn/3;
 ```
+The iteration steps of prediction and correction to obtain the optimal estimation
+```Matlab
+for k=1:iteration
+    %Kalman Filter Prediction
+    xhat = A*xhat+B*u_prev;
+    SigX = A*SigX*A'+Sig_w;
+    zhat = C*xhat+D*u;
+
+    %Kalman Filter Correction 
+    L = SigX*C'/(C*SigX*C'+Sig_v);
+    xhat = xhat + L*(z-zhat);
+    SigX = SigX-L*C*SigX;
+end
+```
+
+
 The real state is unknown and we estimate the state using the Kalman Filter derived from above. The figure below shows the comparison between the real state and estimated state:
 <p align="center">
   <img 
@@ -76,6 +92,18 @@ If the equation is from k steps after time zero and assuming k is arbitrarily hi
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}L=\Sigma_{\tilde{x}}^-C^T(C\Sigma_{\tilde{x}}^-C^T&plus;\Sigma_{\tilde{v}})^{-1}}">
 <img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x}}^&plus;=\Sigma_{\tilde{x}}^--LC\Sigma_{\tilde{x}}^-}">
 
+To achieve steady state kalman gain and state variance:
+```Matlab
+hamiltonian = [A^(-1)' A^(-1)'*C'*Sig_v^(-1)*C; Sig_w*A^(-1)' A+Sig_w*A^(-1)'*C'*Sig_w^(-1)*C];
+[evector,evalue] = eig(hamiltonian);
+psi12 = evector(1,2);
+psi22 = evector(2,2);
+sigX_ss_minus = psi22*psi12^(-1);
+L_ss = sigX_ss_minus*C'*(C*sigX_ss_minus*C'+Sig_v)^(-1);
+sigX_ss_plus = sigX_ss_minus-L_ss*C*sigX_ss_minus;
+```
+
+
 Using the steady-state approach, the kalman gain and the state variance are not a function of step k. It is computationally simple with a slight penalty on optimality. The comparison between estimated state and real state is shown in the figure below (if we compare with the Linear KF approach above, the result is almost the same even if we used the constant Kalman gain:
 
 <p align="center">
@@ -85,7 +113,43 @@ Using the steady-state approach, the kalman gain and the state variance are not 
   >
 </p>
 
-# 3. Applying to an Arbitrary System MIMO:
+# 3. Applying to an Arbitrary System (MIMO and Robust Model):
+If we have two inputs and two outputs with two states, the A,B,C matrix is now a 2x2 matrix:
+```Matlab
+SigmaW = [0.5 0;0 1]; %Process Noise
+SigmaV = [.5 0;0 .5]; %Sensor Noise
+A = [.1 .2; .5 .2]; B = [2 0;1 2]; C = [.2 0;-.1 .3]; D = 0; % Simple State-Space Model
+```
+The iteration steps of prediction and correction to obtain the optimal estimation are shown above, and the figure below shows the comparison between the two real states and estimated states:
+
+<p align="center">
+  <img 
+    width="600"
+    src="images/MIMO_plot.png"
+  >
+</p>
+
+## Robust Kalman Filter (Joseph Form Covariance Update & Sequential Processing of Measurement)
+During the covariance update, we can lose the postive definiteness of matrix due to the rounding error due to the subtraction:
+
+### Joseph Form Covariance Update
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x},k}^&plus;=\Sigma_{\tilde{x},k}^--L_kC_k\Sigma_{\tilde{x},k}^-}">
+We can convert this to the Joseph form so that the subtraction occurs in the "square" term, and thus, the postive definiteness of covariance matrix is guaranteed:
+
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}\Sigma_{\tilde{x},k}^&plus;=[I-L_kC_k]\Sigma_{\tilde{x},k}^-[I-L_kC_k]^T&plus;L_K\Sigma_{\tilde{v}}L_k^T}">
+
+### Sequential Processing of Measurement
+If there exists large number of sensors, the Kalman gain calculation can be computationally intensive due to the matrix inverse operation _O_(m<sup>3</sup>), where m is the number of sensors. If we break the m measurements into single measurement, we can improve the efficiency improves to _O_(m<sup>2</sup>). The measurments can be splitted as shown below:
+
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}z_k=\begin{bmatrix}z_{k:1}\\\vdots\\z_{k:m}\end{bmatrix}=\begin{bmatrix}C_{k:1}^Tx_k&plus;v_{k:1}\\\vdots\\C_{k:m}^Tx_k&plus;v_{k:m}\end{bmatrix}}">
+
+And now we need to perform m steps of prediction correction:
+
+<img src="https://latex.codecogs.com/svg.image?\large&space;{\color{Gray}&space;L_{k:i}&space;=&space;\frac{\Sigma_{\tilde{x},k:i-1}^&plus;C_{k:i}}{\sigma_{\tilde{z},k:i}^2}&space;&space;}">
+
+
+
+
 ## References
 [1] Optimal State Estimation, D. Simon, 2006 
 
